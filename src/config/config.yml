@@ -1,0 +1,10 @@
+database:
+  type: orientdb
+  host: localhost
+  port: 2424
+  username: username
+  password: password
+
+api:
+  port: 8000
+
