@@ -40,12 +40,13 @@ class OrientDBClient(BaseGraphDBClient):
         self.edge_manager = EdgeManager(self.client)
         self.vertex_manager = VertexManager(self.client)
 
-    def define_schema(self, schema: List[Dict[str, Any]]) -> None:
+    async def define_schema(self, schema: List[Dict[str, Any]]) -> None:
         for cls in schema:
             try:
-                self.schema_manager.create(cls['name'], cls['properties'])
+                await self.schema_manager.create(cls['name'], cls['extends'])
+                # await self.schema_manager.update(cls['name'], cls['extends'])
             except KeyError as e:
-                raise "name and properties should be in each dict in list"
+                raise "name, extends and properties should be in each dict in list"
 
     async def ingest_dataframe(self, df: pd.DataFrame, classname: str, is_edge: bool = True, vertex_class_name: str = 'V') -> None:
         """
@@ -59,21 +60,17 @@ class OrientDBClient(BaseGraphDBClient):
         """
         for index, record in df.iterrows():
             try:
-                if not self.schema_manager.class_exists(classname):
-                    await self.schema_manager.create(classname, {}, extends='E' if is_edge else 'V')
+                if not await self.schema_manager.class_exists(classname):
+                    await self.schema_manager.create(classname, extends='E' if is_edge else 'V')
             except KeyError as e:
                 raise "key, didnt exist, @class should be in data"
             try:
-                print('_______')
-                print(record.to_dict())
-                print('_______')
-                if is_edge:
-                    await self.edge_manager.create(edge_class_name=classname,
-                                                   vertex_class_name=vertex_class_name,
-                                                   data=record.to_dict())
-                else:
-                    await self.vertex_manager.create(class_name=classname,
-                                                     data=record.to_dict())
+                data = {
+                       f"@{classname}": record.to_dict()
+                }
+
+                self.client.record_create(-1, data)
+
             except KeyError as e:
                 raise "Key didnt exist, from and to should be in is_edge=True"
 

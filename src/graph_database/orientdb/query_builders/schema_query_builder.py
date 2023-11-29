@@ -7,18 +7,14 @@ class SchemaQueryBuilder(AbstractQueryBuilder):
     Concrete query builder for handling `orientdb schema`.
     Implements abstract query builder, providing methods to generate queries for schema operations.
     """
-    def query_create(self, class_name: str, properties: Dict[str, Any] = None, extends: str = None) -> str:
+    def query_create(self, class_name: str, extends: str = None) -> str:
         """
         Generates a query for creating a new class in the schema.
         """
-        query = f"CREATE CLASS {class_name}"
+        query = f"CREATE CLASS {class_name} IF NOT EXISTS"
 
         if extends:
             query += f" EXTENDS {extends}"
-
-        if properties:
-            prop_list = ", ".join(f"{key} {value}" for key, value in properties.items())
-            query += f" {prop_list}"
 
         return query
 

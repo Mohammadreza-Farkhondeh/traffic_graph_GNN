@@ -11,24 +11,21 @@ async def main():
     # Step 1: Convert Excel files to DataFrame
     xls_converter = XlsToDatasetConverter(seed_data_directory)
     dataset_df = xls_converter.convert()
-    # print(dataset_df.head())
 
     # Step 2: Convert to OrientDB-compatible DataFrame
     orientdb_converter = RecordFeaturedToOrientDBConverter()
     orientdb_df = orientdb_converter.convert_to_desired_format(dataset_df, 'Road', frmt='orientdb')
-    # print(orientdb_df.head())
 
     # Step 3: Ingest data into OrientDB
     database = DB()
     orientdb_client: OrientDBClient = database.client
-    # print(orientdb_client.client.query('select * From Road')[0].__dict__)
 
     # Define schema if not already defined
     schema = [
-        {'name': 'Road', 'properties': {'source': 'STRING', 'destination': 'STRING', 'data': 'EMBEDDEDLIST'}}
+        {'name': 'Road', 'extends': 'V', 'properties': {'source': 'STRING', 'destination': 'STRING', 'data': 'EMBEDDEDLIST'}}
     ]
 
-    orientdb_client.define_schema(schema)
+    await orientdb_client.define_schema(schema)
 
     # Ingest data
     await orientdb_client.ingest_dataframe(orientdb_df, 'Road', is_edge=True)

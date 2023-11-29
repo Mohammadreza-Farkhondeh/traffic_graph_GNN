@@ -74,7 +74,6 @@ class XlsToDatasetConverter(AbstractDatasetToDataFrameConverter):
                     df = pd.read_excel(file_path)
                     transformed_data = self.transform(df)
                     all_data.extend(transformed_data)
-                    break
 
         combined_df = pd.DataFrame(all_data)
 

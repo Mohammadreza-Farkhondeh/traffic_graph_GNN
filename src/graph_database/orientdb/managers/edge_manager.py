@@ -19,7 +19,6 @@ class EdgeManager(AbstractManager):
 
     async def create(self, edge_class_name: str, data: Dict[str, Any], vertex_class_name: str = 'V') -> Dict:
         command = self._query_builder.query_create(edge_class_name, vertex_class_name, data)
-        print(command)
         result = self.client.command(command)
         return result[0].__dict__
 

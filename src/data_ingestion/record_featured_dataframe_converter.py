@@ -83,5 +83,4 @@ class RecordFeaturedToOrientDBConverter(AbstractDataFrameConverter):
             formatted_data.append(linkmap_entry)
 
         formatted_df = pd.DataFrame(formatted_data)
-        print(formatted_df.head())
         return formatted_df
